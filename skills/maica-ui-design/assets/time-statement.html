@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Statement · Maica</title>
+
+  <!-- Poppins (Maica brand typeface) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5.0.8/400.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5.0.8/500.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5.0.8/600.css">
+
+  <!-- Tabler Icons (for the inline icons in KPIs and buttons) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+
+  <style>
+    /* ----------------------------------------------------------------
+       Page shell
+       Replace this with whatever the Next.js app uses; the .ts-doc
+       below is the self-contained statement component.
+       ---------------------------------------------------------------- */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #F0F2F5;
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      color: #152C36;
+    }
+    body {
+      min-height: 100vh;
+      padding: 24px 16px;
+      box-sizing: border-box;
+    }
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ----------------------------------------------------------------
+       Time Statement component
+       All design tokens for the statement live here at the top of
+       .ts-doc so they're easy to find and override.
+       ---------------------------------------------------------------- */
+    .ts-doc {
+      /* Maica brand */
+      --m-teal: #196061;
+      --m-teal-deep: #152C36;
+      --m-mid-teal: #7DA0A0;
+      --m-soft: #F7F9F9;
+      --m-border: #EEEEEE;
+
+      /* Derived tints (overlays of brand teal) */
+      --m-tint-light: rgba(25, 96, 97, 0.12);
+      --m-tint-medium: rgba(25, 96, 97, 0.20);
+      --m-tint-pill: rgba(25, 96, 97, 0.12);
+
+      /* Surface tokens (white-mode defaults; override for dark mode) */
+      --m-text-primary: #152C36;
+      --m-text-secondary: #5A6B72;
+      --m-text-tertiary: #8E9BA1;
+      --m-surface: #FFFFFF;
+      --m-border-strong: #DDDDDD;
+
+      /* Shape */
+      --radius-md: 8px;
+      --radius-lg: 12px;
+
+      /* Fonts */
+      --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, monospace;
+
+      background: var(--m-surface);
+      border: 1px solid var(--m-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      font-family: var(--font-sans);
+      color: var(--m-text-primary);
+    }
+
+    /* Dark mode (drop this block if dark mode isn't wanted) */
+    @media (prefers-color-scheme: dark) {
+      .ts-doc {
+        --m-teal: #7DA0A0;
+        --m-teal-deep: #B5CECD;
+        --m-soft: rgba(255, 255, 255, 0.03);
+        --m-border: rgba(255, 255, 255, 0.08);
+        --m-tint-light: rgba(125, 160, 160, 0.14);
+        --m-tint-medium: rgba(125, 160, 160, 0.22);
+        --m-tint-pill: rgba(125, 160, 160, 0.14);
+        --m-text-primary: #ECECEC;
+        --m-text-secondary: #B0B0B0;
+        --m-text-tertiary: #888888;
+        --m-surface: #1A1A1A;
+        --m-border-strong: rgba(255, 255, 255, 0.16);
+      }
+    }
+
+    .ts-doc * { box-sizing: border-box; }
+
+    /* ---------- Header strip ---------- */
+    .ts-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--m-border);
+    }
+    .ts-wordmark { display: flex; align-items: center; gap: 9px; }
+    .ts-mark {
+      width: 26px; height: 26px; border-radius: 6px;
+      background: var(--m-teal); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 13px;
+    }
+    .ts-brand {
+      font-weight: 600; font-size: 15px;
+      color: var(--m-text-primary);
+      letter-spacing: -0.005em;
+    }
+    .ts-doc-ref {
+      font-size: 12px; color: var(--m-text-secondary);
+      padding: 5px 11px;
+      background: var(--m-soft);
+      border-radius: 999px;
+      font-feature-settings: 'tnum';
+      border: 1px solid var(--m-border);
+    }
+
+    /* ---------- Body wrapper ---------- */
+    .ts-body { padding: 26px 24px; }
+
+    /* ---------- Title row with primary actions ---------- */
+    .ts-title-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .ts-title {
+      font-size: 24px; font-weight: 600; margin: 0;
+      color: var(--m-text-primary);
+      letter-spacing: -0.02em;
+    }
+    .ts-actions { display: flex; gap: 8px; }
+    .ts-btn-primary {
+      background: var(--m-teal); color: white; border: none;
+      padding: 8px 14px; border-radius: var(--radius-md);
+      font-size: 13px; font-weight: 500;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      font-family: inherit;
+    }
+    .ts-btn-secondary {
+      background: var(--m-surface); color: var(--m-text-primary);
+      border: 1px solid var(--m-border-strong);
+      padding: 8px 14px; border-radius: var(--radius-md);
+      font-size: 13px; font-weight: 500;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      font-family: inherit;
+    }
+
+    /* ---------- Meta block (client, project, dates, SOW, address) ---------- */
+    .ts-meta {
+      margin: 0 0 28px;
+      color: var(--m-text-secondary);
+      font-size: 13.5px; line-height: 1.75;
+    }
+    .ts-client-name {
+      color: var(--m-text-primary);
+      font-size: 16px; font-weight: 600;
+      margin: 0 0 4px;
+      letter-spacing: -0.01em;
+    }
+    .ts-meta-line { display: block; }
+
+    /* ---------- KPI cards (Total hours, Resources, Work items) ---------- */
+    .ts-kpi-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; margin-bottom: 28px;
+    }
+    .ts-kpi {
+      background: var(--m-soft);
+      border: 1px solid var(--m-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .ts-kpi-row { display: flex; align-items: center; gap: 8px; }
+    .ts-kpi-icon { color: var(--m-teal); font-size: 16px; display: inline-flex; }
+    .ts-kpi-label {
+      font-size: 12px; font-weight: 500;
+      color: var(--m-teal);
+    }
+    .ts-kpi-value {
+      font-size: 26px; font-weight: 600;
+      color: var(--m-teal-deep);
+      letter-spacing: -0.02em;
+      font-feature-settings: 'tnum';
+    }
+
+    /* ---------- Section headings (small label with trailing rule) ---------- */
+    .ts-section { margin-bottom: 26px; }
+    .ts-section-heading {
+      font-size: 13px; font-weight: 600;
+      color: var(--m-text-primary);
+      margin: 0 0 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .ts-section-heading::after {
+      content: ''; flex: 1; height: 1px; background: var(--m-border);
+    }
+
+    /* ---------- Per-resource summary (proportional pills + Total) ----------
+       Each pill's width is set inline (e.g. style="width: 83.3%") to
+       reflect the resource's share of total hours. min-width: fit-content
+       ensures the pill grows to accommodate the resource name when the
+       proportion is very small.
+       ---------------------------------------------------------------- */
+    .ts-resource-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ts-resource-row {
+      display: flex;
+      align-items: center;
+    }
+    .ts-bar {
+      background: var(--m-tint-light);
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      font-size: 14px;
+      color: var(--m-text-primary);
+      white-space: nowrap;
+      min-width: fit-content;
+      flex-shrink: 0;
+    }
+    .ts-resource-hours {
+      margin-left: auto;
+      padding-left: 14px;
+      padding-right: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--m-text-primary);
+      font-feature-settings: 'tnum';
+    }
+    .ts-subtotal {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--m-tint-medium);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-top: 8px;
+      color: var(--m-teal-deep);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .ts-subtotal-hours { font-feature-settings: 'tnum'; }
+
+    /* ---------- Per work item & Time entries (shared block styling) ----------
+       Both sections use the same .ts-work-block + .ts-work-header structure
+       so they visually rhyme. Per work item shows aggregated resource totals
+       below the header; Time entries shows individual dated entries.
+       ---------------------------------------------------------------- */
+    .ts-work-block {
+      border: 1px solid var(--m-border);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px; overflow: hidden;
+    }
+    .ts-work-header {
+      display: grid; grid-template-columns: auto 1fr auto;
+      align-items: center; gap: 12px;
+      padding: 11px 14px;
+      background: var(--m-soft);
+    }
+    .ts-work-id {
+      font-family: var(--font-mono); font-size: 11.5px;
+      background: var(--m-tint-pill); color: var(--m-teal);
+      padding: 3px 8px; border-radius: 4px;
+      font-weight: 600; letter-spacing: 0.01em;
+    }
+    .ts-work-name {
+      font-size: 14px; font-weight: 500;
+      color: var(--m-text-primary);
+    }
+    /* Render this when the Plane issue has no descriptive title */
+    .ts-work-name-empty {
+      font-size: 13px; color: var(--m-text-tertiary);
+      font-style: italic;
+    }
+    .ts-work-hours {
+      font-size: 14px; font-weight: 600;
+      color: var(--m-text-primary);
+      font-feature-settings: 'tnum';
+    }
+
+    /* Per work item: aggregated resource sub-rows */
+    .ts-work-resource {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 9px 14px 9px 38px;
+      font-size: 13px;
+      color: var(--m-text-secondary);
+      border-top: 1px solid var(--m-border);
+    }
+    .ts-work-resource-hours { font-feature-settings: 'tnum'; }
+
+    /* ---------- Grand total banner ---------- */
+    .ts-grand-total {
+      display: grid; grid-template-columns: 1fr auto;
+      padding: 14px 16px;
+      margin-top: 12px;
+      background: var(--m-teal);
+      border-radius: var(--radius-md);
+      color: white;
+      font-weight: 600; font-size: 15px;
+    }
+    .ts-grand-total-hours { font-feature-settings: 'tnum'; }
+
+    /* ---------- Billable / Non-billable pills (only on time entries) ---------- */
+    .ts-pill {
+      font-size: 11px; font-weight: 500;
+      padding: 2px 8px; border-radius: 999px;
+      display: inline-flex; align-items: center;
+      letter-spacing: 0.01em; white-space: nowrap;
+    }
+    .ts-pill-billable { background: var(--m-tint-pill); color: var(--m-teal); }
+    .ts-pill-nonbillable {
+      background: rgba(125, 160, 160, 0.14);
+      color: var(--m-mid-teal);
+      border: 1px solid rgba(125, 160, 160, 0.30);
+    }
+    @media (prefers-color-scheme: dark) {
+      .ts-pill-nonbillable {
+        background: rgba(125, 160, 160, 0.08);
+        border-color: rgba(125, 160, 160, 0.22);
+      }
+    }
+
+    /* ---------- Time entry rows (date / resource / billable / hours) ---------- */
+    .ts-entry-row {
+      display: grid;
+      grid-template-columns: 96px 1fr 88px 52px;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px 9px 38px;
+      font-size: 13px;
+      border-top: 1px solid var(--m-border);
+    }
+    .ts-entry-date {
+      color: var(--m-text-secondary);
+      font-feature-settings: 'tnum';
+      font-size: 12.5px;
+    }
+    .ts-entry-resource {
+      color: var(--m-text-primary);
+      font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ts-entry-hours {
+      color: var(--m-text-primary);
+      font-weight: 600;
+      font-feature-settings: 'tnum';
+      text-align: right;
+    }
+
+    /* ---------- Footer strip ---------- */
+    .ts-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 24px;
+      border-top: 1px solid var(--m-border);
+      font-size: 12px;
+      color: var(--m-text-tertiary);
+    }
+    .ts-footer-brand {
+      display: flex; align-items: center; gap: 7px;
+      color: var(--m-text-secondary);
+    }
+    .ts-footer-mark {
+      width: 14px; height: 14px; border-radius: 3px;
+      background: var(--m-teal); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- =================================================================
+         TIME STATEMENT COMPONENT
+         All data below is placeholder; wire to the actual statement props
+         when converting to React/Next.js.
+         ================================================================= -->
+    <div class="ts-doc">
+
+      <!-- Header: Maica wordmark + statement reference -->
+      <div class="ts-header">
+        <div class="ts-wordmark">
+          <div class="ts-mark">M</div>
+          <span class="ts-brand">Maica</span>
+        </div>
+        <div class="ts-doc-ref">Statement · CN-0001</div>
+      </div>
+
+      <div class="ts-body">
+
+        <!-- Title + primary actions -->
+        <div class="ts-title-row">
+          <h1 class="ts-title">Time Statement</h1>
+          <div class="ts-actions">
+            <button class="ts-btn-primary" type="button">
+              <i class="ti ti-download" aria-hidden="true"></i>PDF
+            </button>
+            <button class="ts-btn-secondary" type="button">
+              <i class="ti ti-table" aria-hidden="true"></i>CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Meta: client, project, date range, SOW, address -->
+        <div class="ts-meta">
+          <div class="ts-client-name">Complete Nursing</div>
+          <span class="ts-meta-line">Complete Nursing Maica Implementation (CN)</span>
+          <span class="ts-meta-line">18 to 24 May 2026</span>
+          <span class="ts-meta-line">SOW CN-0001</span>
+          <span class="ts-meta-line">Unit 10, 20 Enterprise Drive University Hill, Bundoora VIC 3083</span>
+        </div>
+
+        <!-- KPI cards -->
+        <div class="ts-kpi-grid">
+          <div class="ts-kpi">
+            <div class="ts-kpi-row">
+              <span class="ts-kpi-icon"><i class="ti ti-clock" aria-hidden="true"></i></span>
+              <span class="ts-kpi-label">Total hours</span>
+            </div>
+            <div class="ts-kpi-value">6h</div>
+          </div>
+          <div class="ts-kpi">
+            <div class="ts-kpi-row">
+              <span class="ts-kpi-icon"><i class="ti ti-users" aria-hidden="true"></i></span>
+              <span class="ts-kpi-label">Resources</span>
+            </div>
+            <div class="ts-kpi-value">2</div>
+          </div>
+          <div class="ts-kpi">
+            <div class="ts-kpi-row">
+              <span class="ts-kpi-icon"><i class="ti ti-list-check" aria-hidden="true"></i></span>
+              <span class="ts-kpi-label">Work items</span>
+            </div>
+            <div class="ts-kpi-value">4</div>
+          </div>
+        </div>
+
+        <!-- Section 1: Per-resource summary (proportional pills) -->
+        <div class="ts-section">
+          <p class="ts-section-heading">Per-resource summary</p>
+          <div class="ts-resource-rows">
+            <div class="ts-resource-row">
+              <div class="ts-bar" style="width: 83.3%;">Angus Williams</div>
+              <div class="ts-resource-hours">5h</div>
+            </div>
+            <div class="ts-resource-row">
+              <div class="ts-bar" style="width: 16.7%;">Harry Mycock</div>
+              <div class="ts-resource-hours">1h</div>
+            </div>
+          </div>
+          <div class="ts-subtotal">
+            <div>Total</div>
+            <div class="ts-subtotal-hours">6h</div>
+          </div>
+        </div>
+
+        <!-- Section 2: Per work item (aggregated by resource) -->
+        <div class="ts-section">
+          <p class="ts-section-heading">Per work item</p>
+
+          <div class="ts-work-block">
+            <div class="ts-work-header">
+              <span class="ts-work-id">CN-1</span>
+              <span class="ts-work-name">Project Governance</span>
+              <span class="ts-work-hours">3h</span>
+            </div>
+            <div class="ts-work-resource">
+              <span>Angus Williams</span>
+              <span class="ts-work-resource-hours">2h</span>
+            </div>
+            <div class="ts-work-resource">
+              <span>Harry Mycock</span>
+              <span class="ts-work-resource-hours">1h</span>
+            </div>
+          </div>
+
+          <div class="ts-work-block">
+            <div class="ts-work-header">
+              <span class="ts-work-id">CN-3</span>
+              <span class="ts-work-name-empty">No title</span>
+              <span class="ts-work-hours">30m</span>
+            </div>
+            <div class="ts-work-resource">
+              <span>Angus Williams</span>
+              <span class="ts-work-resource-hours">30m</span>
+            </div>
+          </div>
+
+          <div class="ts-work-block">
+            <div class="ts-work-header">
+              <span class="ts-work-id">CN-26</span>
+              <span class="ts-work-name-empty">No title</span>
+              <span class="ts-work-hours">1h 30m</span>
+            </div>
+            <div class="ts-work-resource">
+              <span>Angus Williams</span>
+              <span class="ts-work-resource-hours">1h 30m</span>
+            </div>
+          </div>
+
+          <div class="ts-work-block">
+            <div class="ts-work-header">
+              <span class="ts-work-id">CN-28</span>
+              <span class="ts-work-name">Care Plan Data Model Field Extension</span>
+              <span class="ts-work-hours">1h</span>
+            </div>
+            <div class="ts-work-resource">
+              <span>Angus Williams</span>
+              <span class="ts-work-resource-hours">1h</span>
+            </div>
+          </div>
+
+          <div class="ts-grand-total">
+            <div>Grand total</div>
+            <div class="ts-grand-total-hours">6h</div>
+          </div>
+        </div>
+
+        <!-- Section 3: Time entries (grouped by work item, date descending) -->
+        <div class="ts-section" style="margin-bottom: 8px;">
+          <p class="ts-section-heading">Time entries</p>
+
+          <div class="ts-work-block">
+            <div class="ts-work-header">
+              <span class="ts-work-id">CN-1</span>
+              <span class="ts-work-name">Project Governance</span>
+              <span class="ts-work-hours">3h</span>
+            </div>
+            <div class="ts-entry-row">
+              <span class="ts-entry-date">Tue, 19 May</span>
+              <span class="ts-entry-resource">Angus Williams</span>
+              <span class="ts-pill ts-pill-billable">Billable</span>
+              <span class="ts-entry-hours">1h</span>
+            </div>
+            <div class="ts-entry-row">
+              <span class="ts-entry-date">Mon, 18 May</span>
+              <span class="ts-entry-resource">Angus Williams</span>
+              <span class="ts-pill ts-pill-billable">Billable</span>
+              <span class="ts-entry-hours">1h</span>
+            </div>
+            <div class="ts-entry-row">
+              <span class="ts-entry-date">Mon, 18 May</span>
+              <span class="ts-entry-resource">Harry Mycock</span>
+              <span class="ts-pill ts-pill-billable">Billable</span>
+              <span class="ts-entry-hours">1h</span>
+            </div>
+          </div>
+
+          <div class="ts-work-block">
+            <div class="ts-work-header">
+              <span class="ts-work-id">CN-3</span>
+              <span class="ts-work-name-empty">No title</span>
+              <span class="ts-work-hours">30m</span>
+            </div>
+            <div class="ts-entry-row">
+              <span class="ts-entry-date">Wed, 20 May</span>
+              <span class="ts-entry-resource">Angus Williams</span>
+              <span class="ts-pill ts-pill-billable">Billable</span>
+              <span class="ts-entry-hours">30m</span>
+            </div>
+          </div>
+
+          <div class="ts-work-block">
+            <div class="ts-work-header">
+              <span class="ts-work-id">CN-26</span>
+              <span class="ts-work-name-empty">No title</span>
+              <span class="ts-work-hours">1h 30m</span>
+            </div>
+            <div class="ts-entry-row">
+              <span class="ts-entry-date">Wed, 20 May</span>
+              <span class="ts-entry-resource">Angus Williams</span>
+              <span class="ts-pill ts-pill-nonbillable">Non-billable</span>
+              <span class="ts-entry-hours">30m</span>
+            </div>
+            <div class="ts-entry-row">
+              <span class="ts-entry-date">Mon, 18 May</span>
+              <span class="ts-entry-resource">Angus Williams</span>
+              <span class="ts-pill ts-pill-nonbillable">Non-billable</span>
+              <span class="ts-entry-hours">1h</span>
+            </div>
+          </div>
+
+          <div class="ts-work-block">
+            <div class="ts-work-header">
+              <span class="ts-work-id">CN-28</span>
+              <span class="ts-work-name">Care Plan Data Model Field Extension</span>
+              <span class="ts-work-hours">1h</span>
+            </div>
+            <div class="ts-entry-row">
+              <span class="ts-entry-date">Thu, 21 May</span>
+              <span class="ts-entry-resource">Angus Williams</span>
+              <span class="ts-pill ts-pill-billable">Billable</span>
+              <span class="ts-entry-hours">1h</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Footer: brand mark + expiry/confidentiality -->
+      <div class="ts-footer">
+        <div class="ts-footer-brand">
+          <div class="ts-footer-mark">M</div>
+          <span>Time tracked by Maica</span>
+        </div>
+        <div>Link expires 20 Aug 2026 · Confidential</div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>
